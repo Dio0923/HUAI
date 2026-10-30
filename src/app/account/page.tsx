@@ -1,0 +1,8 @@
+'use client';
+import { useState } from 'react';
+import Link from 'next/link';
+import { request } from '@/lib/client';
+export default function Account(){const [confirm,setConfirm]=useState(''),[busy,setBusy]=useState(false),[message,setMessage]=useState('');
+ async function remove(e:React.FormEvent){e.preventDefault();setBusy(true);setMessage('');try{await request('/api/auth/delete',{confirmation:confirm});for(const key of Object.keys(localStorage))if(key.startsWith('huai-'))localStorage.removeItem(key);sessionStorage.removeItem('huai-check-required');if('caches' in window){for(const key of await caches.keys())if(key.startsWith('huai-'))await caches.delete(key)}setMessage('Your account and stored decisions were deleted. Browser copies on this device were cleared.');setConfirm('')}catch(e){setMessage((e as Error).message)}finally{setBusy(false)}}
+ return <main className="narrow page"><div className="overline">YOUR INFORMATION</div><h1>Account &amp;<br/><em>your data.</em></h1><p>Delete your account, decisions, reviews and saved facts. This cannot be undone. Copies on other devices must be cleared on those devices.</p><form className="form-stack" onSubmit={remove}><label htmlFor="confirm">Type DELETE to confirm</label><input id="confirm" value={confirm} onChange={e=>setConfirm(e.target.value)} autoComplete="off"/><button className="button primary" disabled={confirm!=='DELETE'||busy}>{busy?'Deleting…':'Delete my account and data'} <span>→</span></button></form>{message&&<p className="notice" role="status">{message}</p>}<p><Link href="/policies/privacy">Read the privacy notice →</Link></p></main>
+}
